@@ -45,6 +45,7 @@ class Message:
     attachments: tuple[Attachment, ...] = ()
     removed: bool = False
     child_candidates: tuple[str, ...] = ()
+    receipt_requested: bool = False
 
 
 class _Inputs(HTMLParser):
@@ -368,10 +369,15 @@ class EduPageClient:
                 ref = hashlib.sha256((source_id + '\0' + link).encode()).hexdigest()
                 attachment_urls[ref] = urljoin(self.base, link)
                 attachments.append(Attachment(ref, name))
+            # Messages that request a read receipt carry only a placeholder in
+            # 'text'; the timeline already delivers their body in 'messageContent'.
+            body = extra.get('messageContent')
+            text = body if isinstance(body, str) and body.strip() else row['text']
             message = Message(source_id, canonical['kind'], canonical['timestamp'],
-                              row['text'], extra, str(canonical['recipient']), digest,
+                              text, extra, str(canonical['recipient']), digest,
                               tuple(attachments), canonical['removed'],
-                              self._child_candidates(str(canonical['recipient'])))
+                              self._child_candidates(str(canonical['recipient'])),
+                              extra.get('receipt') in (1, '1', True))
             if source_id in messages and messages[source_id].content_hash != digest:
                 raise ConnectorError('CONFLICTING_DUPLICATE')
             messages[source_id] = message

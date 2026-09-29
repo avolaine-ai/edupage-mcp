@@ -156,7 +156,9 @@ def test_list_minimizes_data_and_get_requires_known_refs() -> None:
     listing = tools.call('list_messages', since=date.today().isoformat())
     assert listing['complete_archive'] is False
     assert 'text' not in listing['messages'][0]
-    assert tools.call('get_message', message_id='m1')['content_is_untrusted'] is True
+    message = tools.call('get_message', message_id='m1')
+    assert message['content_is_untrusted'] is True
+    assert message['receipt_requested'] is False
     assert tools.call('get_message', message_id='foreign')['status'] == 'UNKNOWN_MESSAGE'
     assert tools.call('get_attachment', message_id='m1', reference='https://evil.invalid')['status'] == 'UNKNOWN_ATTACHMENT'
     backend.download_pdf.assert_not_called()

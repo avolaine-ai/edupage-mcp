@@ -147,6 +147,20 @@ def test_duplicate_and_edit_have_stable_identity_but_different_version():
     assert 'Test message' not in repr(first[0])
 
 
+def test_receipt_message_uses_timeline_body_instead_of_placeholder():
+    placeholder = 'Wichtige Nachricht, öffnen Sie die Nachricht, um den Inhalt anzuzeigen.'
+    data = json.dumps({'receipt': '1', 'messageContent': 'Synthetic body'})
+    client, session = make_client(response(encoded({'timelineItems': [
+        row(text=placeholder, data=data), row(timelineid='124')]})), ready=True)
+    important, plain = client.list_messages(date(2026, 9, 1))
+    assert important.text == 'Synthetic body'
+    assert important.receipt_requested is True
+    assert plain.text == 'Test message'
+    assert plain.receipt_requested is False
+    # Reading the body must not open the message or confirm it.
+    assert session.request.call_count == 1
+
+
 def test_conflicting_rows_are_not_silently_dropped():
     client, _ = make_client(response(encoded({'timelineItems': [row(), row(text='Different')]})), ready=True)
     with pytest.raises(ConnectorError, match='^CONFLICTING_DUPLICATE$'):

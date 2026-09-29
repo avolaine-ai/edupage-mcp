@@ -10,7 +10,7 @@ This is a technical integration for one locally configured parent account. EduPa
 | --- | --- |
 | `auth_status` | Checks whether the saved session still works. |
 | `list_messages(since)` | Lists IDs, dates, content versions and attachment counts in a requested window of at most 90 days. |
-| `get_message(message_id)` | Returns the full text and attachment references for an ID from the latest listing. |
+| `get_message(message_id)` | Returns the full text and attachment references for an ID from the latest listing. For messages that request a read receipt, the body comes from the timeline data instead of EduPage's "open the message" placeholder, and `receipt_requested` is `true`. No receipt is sent. |
 | `get_attachment(message_id, reference)` | Returns a known PDF as Base64, up to 2 MB. |
 
 All tools are read-only at the MCP level. EduPage itself may record that a message or document was viewed. The returned school content is untrusted input, including any instructions it may contain. There are no free-form URL, password, cookie, school-switching, send-message or write tools.

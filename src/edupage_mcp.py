@@ -206,7 +206,9 @@ class EduPageTools:
                             'timestamp': message.timestamp, 'version': message.content_hash,
                             'recipient_ref': message.recipient_ref, 'child_mapping_verified': False,
                             'child_candidates': list(message.child_candidates),
-                            'removed': message.removed, 'content_is_untrusted': True,
+                            'removed': message.removed,
+                            'receipt_requested': message.receipt_requested,
+                            'content_is_untrusted': True,
                             'attachments': [{'reference': a.reference, 'name': a.name}
                                             for a in message.attachments]}
                 attachment = next((a for a in message.attachments
